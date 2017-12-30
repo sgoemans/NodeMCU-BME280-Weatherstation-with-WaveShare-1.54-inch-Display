@@ -27,8 +27,8 @@ GxEPD_Class display(io);
  
 Adafruit_BME280 bme; // I2C
 
-const char* ssid = "NEUROMECHANICS";
-const char* password = "A16243m4e59647586940";
+const char* ssid = "ssid";
+const char* password = "password";
 
 double h, t, p, dp;
 int oldT;
