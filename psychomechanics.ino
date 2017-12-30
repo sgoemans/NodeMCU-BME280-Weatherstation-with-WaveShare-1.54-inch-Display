@@ -75,6 +75,7 @@ void setup() {
   if (!bme.begin()) {
     Serial.println("Could not find a BME280 sensor!");
   }
+  SPI.setFrequency(8000000L);
   display.init();
 }
 
@@ -195,14 +196,40 @@ void i2cScanner() {
   else
     Serial.println("done\n");
 }
-
+/*
+void drawPixel(int16_t x, int16_t y, uint16_t color);
+    void init(void);
+    void fillScreen(uint16_t color); // 0x0 black, >0x0 white, to buffer
+    void update(void);
+    // to buffer, may be cropped, drawPixel() used, update needed
+    void  drawBitmap(const uint8_t *bitmap, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, int16_t mode = bm_normal);
+    // to full screen, filled with white if size is less, no update needed
+    void drawBitmap(const uint8_t *bitmap, uint32_t size, int16_t mode = bm_normal); // only bm_normal, bm_invert, bm_partial_update modes implemented
+    void eraseDisplay(bool using_partial_update = false);
+    // partial update of rectangle from buffer to screen, does not power off
+    void updateWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h, bool using_rotation = true);
+    // partial update of rectangle at (xs,ys) from buffer to screen at (xd,yd), does not power off
+    void updateToWindow(uint16_t xs, uint16_t ys, uint16_t xd, uint16_t yd, uint16_t w, uint16_t h, bool using_rotation = true);
+    // terminate cleanly updateWindow or updateToWindow before removing power or long delays
+    void powerDown();
+    // paged drawing, for limited RAM, drawCallback() is called GxGDEP015OC1_PAGES times
+    // each call of drawCallback() should draw the same
+    void drawPaged(void (*drawCallback)(void));
+    void drawPaged(void (*drawCallback)(uint32_t), uint32_t);
+    void drawPaged(void (*drawCallback)(const void*), const void*);
+    void drawPaged(void (*drawCallback)(const void*, const void*), const void*, const void*);
+    // paged drawing to screen rectangle at (x,y) using partial update
+    void drawPagedToWindow(void (*drawCallback)(void), uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void drawPagedToWindow(void (*drawCallback)(uint32_t), uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint32_t);
+    void drawPagedToWindow(void (*drawCallback)(const void*), uint16_t x, uint16_t y, uint16_t w, uint16_t h, const void*);
+    void drawPagedToWindow(void (*drawCallback)(const void*, const void*), uint16_t x, uint16_t y, uint16_t w, uint16_t h, const void*, const void*);
+    void drawCornerTest(uint8_t em = 0x01);
+ */
 void displayBME280()
 {
   int tt = abs(t*10);
   int hh = abs(h*10);
   if(tt < oldT || tt > oldT || hh < oldH-10 || hh > oldH+10) {
-    oldT = tt;
-    oldH = hh;
     char dC[3] = {'°', 'C', 0};
     Serial.print("Current humdity = ");
     Serial.print(h);
@@ -222,6 +249,7 @@ void displayBME280()
     display.setTextSize(2);
     display.setCursor(8, 72);
     display.print(t, 1);
+    
     display.setFont(&FreeSansBold18pt7b);
     display.setTextSize(2);
     display.setCursor(16, 146);
@@ -235,6 +263,10 @@ void displayBME280()
     display.setTextSize(1);
     display.print(" hPa");
    
-    display.update();
+    display.updateWindow(0 /* x */, 0 /* y */, 200 /* w */, 200 /* h */, false);
+    //display.update();
+
+    oldT = tt;
+    oldH = hh;
   }
 }
