@@ -31,8 +31,9 @@ const char* ssid = "NEUROMECHANICS";
 const char* password = "A16243m4e59647586940";
 
 double h, t, p, dp;
-double oldT, oldH, oldP;
-char temperatureFString[6];
+int oldT;
+int oldH;
+char temperatureString[6];
 char dpString[6];
 char humidityString[6];
 char pressureString[8];
@@ -95,14 +96,15 @@ void getWeather() {
     dp = computeDewPoint2(t, h);    
     p = bme.readPressure()/100.0F;
 
-    dtostrf(t, 5, 1, temperatureFString);
+    dtostrf(t, 5, 1, temperatureString);
     dtostrf(h, 5, 1, humidityString);
-    dtostrf(p, 7, 2, pressureString);
+    dtostrf(p, 7, 1, pressureString);
     dtostrf(dp, 5, 1, dpString);
     delay(100); 
 }
 
 void loop() {
+  getWeather();
   displayBME280();
   // Listenning for new clients
   WiFiClient client = server.available();
@@ -117,7 +119,6 @@ void loop() {
         // If the client's http request was received completely, the device sends the
         // http response which includes the web page in its body (payload)
         if (c == '\n' && blank_line) {
-            getWeather();
             client.println("HTTP/1.1 200 OK");
             client.println("Content-Type: text/html");
             client.println("Connection: close");
@@ -129,7 +130,7 @@ void loop() {
             client.println("<body><h1>ESP8266 Weather Web Server</h1>");
             client.println("<table border=\"2\" width=\"456\" cellpadding=\"10\"><tbody><tr><td>");
             client.println("<h3>Temperature = ");
-            client.println(temperatureFString);
+            client.println(temperatureString);
             client.println("&deg;F</h3><h3>Humidity = ");
             client.println(humidityString);
             client.println("%</h3><h3>Approx. Dew Point = ");
@@ -153,11 +154,11 @@ void loop() {
     client.stop();
     Serial.println("Client disconnected...");
   }
-  delay(100);
+  delay(1000);
 }
 
 void i2cScanner() {
-   byte error, address;
+  byte error, address;
   int nDevices;
  
   Serial.println("Scanning...");
@@ -197,7 +198,11 @@ void i2cScanner() {
 
 void displayBME280()
 {
-  if(t != oldT || h != oldH || p != oldP) {
+  int tt = abs(t*10);
+  int hh = abs(h*10);
+  if(tt < oldT || tt > oldT || hh < oldH-10 || hh > oldH+10) {
+    oldT = tt;
+    oldH = hh;
     char dC[3] = {'°', 'C', 0};
     Serial.print("Current humdity = ");
     Serial.print(h);
@@ -223,8 +228,12 @@ void displayBME280()
     display.print(h, 1);
     display.setTextSize(1);
     display.print("%");
+    display.setFont(&FreeSansBold12pt7b);
+    display.setTextSize(2);
     display.setCursor(16, 198);
-    display.print(dp, 1);
+    display.print(p, 1);
+    display.setTextSize(1);
+    display.print(" hPa");
    
     display.update();
   }
