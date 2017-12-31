@@ -1,7 +1,9 @@
 #include <GxEPD.h>
 #include <GxGDEP015OC1/GxGDEP015OC1.cpp>
-// For the 4.2 inch display use the following class instead
-// #include <GxGDEW042T2>/GxGDEW042T2.cpp
+// For the 4.2 inch display use the following class instead (not tested)
+// #include <GxGDEW042T2/GxGDEW042T2.cpp>
+// For the 4.2 inch 3-color display use the following class (not tested)
+// #include <GxGDEW042Z15/GxGDEW042Z15.cpp>
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
  
@@ -30,7 +32,7 @@ Adafruit_BME280 bme; // I2C
 const char* ssid = "ssid";
 const char* password = "password";
 
-double h, t, p, dp;
+double h /* humidity */, t /* temperature */, p /* air pressure */, dp /* dew point */;
 int oldT;
 int oldH;
 char temperatureString[6];
