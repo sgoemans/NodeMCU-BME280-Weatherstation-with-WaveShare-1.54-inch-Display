@@ -191,7 +191,8 @@ void i2cScanner() {
       if (address<16)
         Serial.print("0");
       Serial.println(address,HEX);
-    }    
+    }
+   delay(20);
   }
   if (nDevices == 0)
     Serial.println("No I2C devices found\n");
